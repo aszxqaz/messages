@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "api"
+		},
+		{
+			"path": "consumer"
+		},
+		{
+			"path": "database"
+		},
+		{
+			"path": "common"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

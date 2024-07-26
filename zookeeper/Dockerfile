@@ -1,0 +1,6 @@
+FROM confluentinc/cp-zookeeper:7.3.2
+
+ENV ZOOKEEPER_CLIENT_PORT=2181
+ENV PORT=2181
+
+EXPOSE 2181

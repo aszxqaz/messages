@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "railway-docker"
+		},
+		{
+			"path": "frontend"
 		}
 	],
 	"settings": {}

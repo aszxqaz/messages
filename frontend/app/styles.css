@@ -1,0 +1,15 @@
+a {
+  position: relative;
+  text-decoration: none;
+}
+
+/* a:hover::before {
+  content: '';
+  position: absolute;
+  border-radius: 0.3rem;
+  left: -5%;
+  right: -5%;
+  top: -5%;
+  bottom: -5%;
+  background-color: rgba(30, 0, 255, 0.07);
+} */

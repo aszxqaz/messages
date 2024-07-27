@@ -14,9 +14,6 @@
 		},
 		{
 			"path": "."
-		},
-		{
-			"path": "deployment"
 		}
 	],
 	"settings": {}

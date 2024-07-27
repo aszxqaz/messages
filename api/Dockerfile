@@ -10,6 +10,6 @@ RUN go build -v -o /app/api/api
 
 FROM scratch
 
-COPY --from=builder /app/api /app/api
+COPY --from=builder /app/api/api /app/api/api
 
-CMD ["/app/api/api"]
+ENTRYPOINT ["/app/api/api"]

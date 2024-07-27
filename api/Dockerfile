@@ -6,7 +6,7 @@ COPY ./common ./common
 
 WORKDIR /app/api
 RUN go mod download
-RUN go build -v -o /app/api/api
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o /app/api/api
 
 FROM scratch
 

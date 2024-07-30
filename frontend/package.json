@@ -13,37 +13,20 @@
   "dependencies": {
     "@mantine/core": "^7.9.2",
     "@mantine/hooks": "^7.9.2",
-    "@mantine/notifications": "^7.10.0",
-    "@prisma/client": "^5.14.0",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
-    "@remix-validated-form/with-zod": "^2.0.7",
     "@tabler/icons-react": "^3.4.0",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/mouse-event-offset": "^3.0.4",
     "axios": "^1.7.2",
-    "bcryptjs": "^2.4.3",
-    "date-fns": "^3.6.0",
     "dayjs": "^1.11.11",
     "isbot": "^4.1.0",
-    "lodash-es": "^4.17.21",
-    "match-sorter": "^6.3.4",
-    "mouse-event-offset": "^3.0.2",
     "react": "^18.3",
-    "react-day-picker": "^8.10.1",
     "react-dom": "^18.3",
     "remix-typedjson": "^0.4.1",
-    "remix-validated-form": "^5.1.5",
-    "slugify": "^1.6.6",
-    "tiny-invariant": "^1.3.3",
-    "use-local-storage-state": "^19.2.0",
-    "zod": "^3.23.8",
-    "zod-form-data": "^2.0.2"
+    "use-local-storage-state": "^19.2.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.9.2",
-    "@types/lodash-es": "^4.17.12",
     "@types/react": "^18.3",
     "@types/react-dom": "^18.3",
     "postcss": "^8.4.38",
@@ -55,8 +38,5 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "prisma": {
-    "seed": "node --no-warnings=ExperimentalWarning --loader ts-node/esm prisma/seed.ts"
   }
 }

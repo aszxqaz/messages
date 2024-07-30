@@ -57,6 +57,7 @@ func (h *messageEventHandler) handleMessageCreated(eventBytes []byte) error {
 	}
 
 	delay := time.Duration(event.ProcessingDelayMs) * time.Millisecond
+	time.Sleep(delay)
 	time.AfterFunc(delay, func() {
 		if err := h.messageRepository.MarkProcessed(event.Id); err != nil {
 			log.Printf("Failed to mark message as processed: %v", err)

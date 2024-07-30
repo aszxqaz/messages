@@ -1,5 +1,5 @@
-import dayjs from 'dayjs';
-import relative from 'dayjs/plugin/relativeTime';
+import dayjs from "dayjs";
+import relative from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relative);
 
@@ -8,5 +8,5 @@ export function getDateFromNow(date: Date | string) {
 }
 
 export function formatPrettyDate(date: Date) {
-  return dayjs(date).format('MMM D, YYYY h:mm A');
+  return dayjs(date).format("MMM D, h:mm A");
 }

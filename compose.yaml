@@ -2,31 +2,35 @@ name: messages
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
-    hostname: zookeeper
-    container_name: zookeeper
+    container_name: messages-zookeeper
     # ports:
     #   - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_MAX_CLIENT_CONNECTIONS: 60
+      ZOOKEEPER_AUTOPURGE_PERIOD: 300000
+      KAFKA_OPTS: -Dzookeeper.admin.enableServer=false
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL: ERROR
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z -w 3 zookeeper 2181" ]
+      retries: 1
+      start_period: 10s
 
   broker1:
     image: confluentinc/cp-kafka:7.3.2
-    hostname: broker1
-    container_name: broker1
+    container_name: messages-broker1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     # ports:
     #   - "29092:29092"
     #   - "9092:9092"
+    env_file:
+      - "./broker.base.env"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker1:29092,EXTERNAL://broker1:9092
     healthcheck:
       test: [ "CMD-SHELL", "nc -z -w 3 broker1 29092" ]
       retries: 1
@@ -34,21 +38,16 @@ services:
 
   broker2:
     image: confluentinc/cp-kafka:7.3.2
-    hostname: broker2
-    container_name: broker2
+    container_name: messages-broker2
     depends_on:
-      - zookeeper
-    # ports:
-    #   - "29092:29092"
-    #   - "9092:9092"
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - "./broker.base.env"
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:29092,PLAINTEXT_HOST://localhost:9093
-      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker2:29092, EXTERNAL://broker2:9092
+
     healthcheck:
       test: [ "CMD-SHELL", "nc -z -w 3 broker2 29092" ]
       retries: 1
@@ -56,44 +55,24 @@ services:
 
   broker3:
     image: confluentinc/cp-kafka:7.3.2
-    hostname: broker3
-    container_name: broker3
+    container_name: messages-broker3
     depends_on:
-      - zookeeper
-    # ports:
-    #   - "29092:29092"
-    #   - "9092:9092"
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - "./broker.base.env"
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:29092,PLAINTEXT_HOST://localhost:9094
-      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker3:29092, EXTERNAL://broker3:9092
+
     healthcheck:
       test: [ "CMD-SHELL", "nc -z -w 3 broker3 29092" ]
       retries: 1
       start_period: 10s
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop:3.31.0
-    container_name: kafdrop
-    ports:
-      - 9000:9000
-    environment:
-      KAFKA_BROKERCONNECT: broker1:29092,broker2:29092,broker3:29092
-    depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
-      broker3:
-        condition: service_healthy
-
   database:
     image: postgres:15
-    container_name: database
+    container_name: messages-database
     environment:
       POSTGRES_USER: postgres
       PGUSER: postgres
@@ -105,7 +84,7 @@ services:
       - 5432:5432
 
   api:
-    container_name: api
+    container_name: messages-api
     depends_on:
       broker1:
         condition: service_healthy
@@ -120,16 +99,14 @@ services:
       dockerfile: api/Dockerfile
     ports:
       - 8080:8080
+    env_file:
+      - "./database.base.env"
     environment:
-      DB_USER: postgres
-      DB_NAME: postgres
-      DB_HOST: database
-      DB_PORT: 5432
+      PORT: 8080
       DB_PASSWORD: postgres
-      KAFKA_SERVERS: broker1:29092,broker2:29092,broker3:29092
+      KAFKA_SERVERS: broker1:9092,broker2:9092,broker3:9092
 
   consumer:
-    container_name: consumer
     depends_on:
       broker1:
         condition: service_healthy
@@ -142,18 +119,44 @@ services:
     build:
       context: .
       dockerfile: consumer/Dockerfile
+    env_file:
+      - "./database.base.env"
     environment:
-      DB_USER: postgres
-      DB_NAME: postgres
-      DB_HOST: database
-      DB_PORT: 5432
       DB_PASSWORD: postgres
-      KAFKA_SERVERS: broker1:29092,broker2:29092,broker3:29092
+      KAFKA_SERVERS: broker1:9092,broker2:9092,broker3:9092
       CONSUMERS_COUNT: 3
+
+  frontend:
+    container_name: messages-frontend
+    depends_on:
+      - api
+    build:
+      context: ./frontend
+    ports:
+      - 3000:3000
+    environment:
+      - API_BASE_URL=http://api:8080/api/v1
+  #
+  # # # Optional: Monitoring tools
+  #
+  # kafdrop:
+  #   image: obsidiandynamics/kafdrop:3.31.0
+  #   container_name: messages-kafdrop
+  #   ports:
+  #     - 9000:9000
+  #   environment:
+  #     KAFKA_BROKERCONNECT: broker1:29092,broker2:29092,broker3:29092
+  #   depends_on:
+  #     broker1:
+  #       condition: service_healthy
+  #     broker2:
+  #       condition: service_healthy
+  #     broker3:
+  #       condition: service_healthy
   #
   # pgadmin:
   #   image: dpage/pgadmin4:8.9
-  #   container_name: pgadmin4
+  #   container_name: messages-pgadmin4
   #   restart: always
   #   ports:
   #     - 8888:80

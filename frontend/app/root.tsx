@@ -1,6 +1,5 @@
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
-import './styles.css';
+import "@mantine/core/styles.css";
+import "./styles.css";
 
 import {
   AppShell,
@@ -8,19 +7,17 @@ import {
   ColorSchemeScript,
   Group,
   MantineProvider,
-  Space
-} from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
+  Space,
+} from "@mantine/core";
 import {
   Link,
   Links,
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
-} from '@remix-run/react';
-import { ColorSchemeSwitcher } from '~/ColorSchemeSwitcher';
-import { Logo } from '~/components/Logo';
+  ScrollRestoration,
+} from "@remix-run/react";
+import { ColorSchemeSwitcher } from "~/ColorSchemeSwitcher";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,22 +38,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-
 export default function App() {
-
   return (
-    <MantineProvider defaultColorScheme={'auto'}>
-      <Notifications />
+    <MantineProvider defaultColorScheme={"auto"}>
       <AppShell padding="md">
         <AppShell.Header pos="relative">
           <Group p="md" justify="space-between">
             <Group>
               <Box visibleFrom="sm">
-                <Link to="/">
-                  <Box c="blue" w="10rem">
-                    <Logo />
-                  </Box>
-                </Link>
+                <Link to="/"></Link>
               </Box>
             </Group>
             <Group>

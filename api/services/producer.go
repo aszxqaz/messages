@@ -11,6 +11,7 @@ import (
 
 type EventProducer interface {
 	Produce(event events.Event) error
+	Close()
 }
 
 type eventProducer struct {
@@ -34,6 +35,10 @@ func (p *eventProducer) Produce(event events.Event) error {
 		return fmt.Errorf("failed to send event to Kafka: %w", err)
 	}
 	return nil
+}
+
+func (p *eventProducer) Close() {
+	p.SyncProducer.Close()
 }
 
 func NewEventProducer(producer sarama.SyncProducer) EventProducer {

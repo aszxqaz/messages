@@ -1,4 +1,4 @@
-class Message {
+export class Message {
   constructor(
     public readonly id: number,
     public readonly content: string,
@@ -7,14 +7,13 @@ class Message {
     public readonly processingDelayMs: number
   ) {}
 
-  static fromJSON(json: any): Message {
-    const obj = JSON.parse(json);
+  static fromJSON(obj: any): Message {
     return new Message(
       obj.id,
       obj.content,
-      new Date(obj.createdAt),
+      new Date(obj.created_at),
       obj.processed,
-      obj.processingDelayMs
+      obj.processing_delay
     );
   }
 }

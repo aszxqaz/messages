@@ -26,7 +26,7 @@ func (mc *messageController) Create(c *fiber.Ctx) error {
 	err := c.BodyParser(&command)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Invalid request body. Check the \"content\" and \"processing_delay\" fields.",
 		})
 	}
 

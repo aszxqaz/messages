@@ -73,36 +73,6 @@ func (app *app) Run() {
 	wg.Wait()
 }
 
-// func (app *app) Run() {
-// 	consumer := createConsumer(app.config.Kafka)
-// 	partitionList, err := consumer.Partitions("message")
-// 	if err != nil {
-// 		log.Fatalf("Error getting partition list: %v\n", err)
-// 	}
-
-// 	var (
-// 		messages = make(chan *sarama.ConsumerMessage, 1024)
-// 		wg       sync.WaitGroup
-// 	)
-
-// 	for _, partition := range partitionList {
-// 		pc, err := consumer.ConsumePartition("message", partition, sarama.OffsetNewest)
-// 		if err != nil {
-// 			log.Printf("Error creating consumer for partition %d: %v\n", partition, err)
-// 			continue
-// 		}
-
-// 		wg.Add(1)
-// 		go func(pc sarama.PartitionConsumer) {
-// 			defer wg.Done()
-// 			for message := range pc.Messages() {
-// 				log.Printf("Consumed message from partition %d at offset %d: %s\n", partition, message.Offset, string(message.Value))
-// 				messages <- message
-// 			}
-// 		}(pc)
-// 	}
-// }
-
 func createConsumerGroup(config *config.KafkaConfig) sarama.ConsumerGroup {
 	brokers := strings.Split(config.Brokers, ",")
 	consumerConfig := sarama.NewConfig()
@@ -114,15 +84,3 @@ func createConsumerGroup(config *config.KafkaConfig) sarama.ConsumerGroup {
 	}
 	return consumer
 }
-
-// func createConsumer(config *config.KafkaConfig) sarama.Consumer {
-// 	brokers := strings.Split(config.Brokers, ",")
-
-// consumerConfig := sarama.NewConfig()
-// consumerConfig.Consumer.Offsets.AutoCommit.Enable = false
-// 	c, err := sarama.NewConsumer(brokers, nil)
-// 	if err != nil {
-// 		log.Fatalf("Error creating consumer: %v\n", err)
-// 	}
-// 	return c
-// }

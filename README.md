@@ -10,4 +10,4 @@ Then open [http://localhost:3000](http://localhost:3000)
 
 ## Deployed app
 
-[messages-aszxqaz.up.railway.app](messages-aszxqaz.up.railway.app)
+[https://messages-aszxqaz.up.railway.app](https://messages-aszxqaz.up.railway.app)

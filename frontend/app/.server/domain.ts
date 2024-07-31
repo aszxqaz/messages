@@ -17,3 +17,19 @@ export class Message {
     );
   }
 }
+
+export class Statistics {
+  constructor(
+    public readonly totalMessages: number,
+    public readonly unprocessedMessages: number,
+    public readonly processedMessages: number
+  ) {}
+
+  static fromJSON(obj: any): Statistics {
+    return new Statistics(
+      obj.total_messages,
+      obj.unprocessed_messages,
+      obj.processed_messages
+    );
+  }
+}

@@ -15,9 +15,9 @@ import {
   TextInput,
 } from "@mantine/core";
 import { ActionFunctionArgs } from "@remix-run/node";
-import { Await, useFetcher, useRevalidator } from "@remix-run/react";
+import { Await, useRevalidator } from "@remix-run/react";
 import { IconRefresh, IconX } from "@tabler/icons-react";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import {
   typeddefer,
   typedjson,
@@ -25,7 +25,7 @@ import {
   useTypedLoaderData,
 } from "remix-typedjson";
 import { apiClient } from "~/.server/client";
-import { Message } from "~/.server/message";
+import { Message } from "~/.server/domain";
 import { formatPrettyDate } from "~/time";
 
 export function loader() {
@@ -68,10 +68,7 @@ export default function Index() {
 }
 
 function MessagesWidget({ messages }: { messages: Message[] }) {
-  const [currentMessages, setCurrentMessages] = useState(messages);
   const actionFetcher = useTypedFetcher<typeof action>();
-  const refreshFetcher = useFetcher<{ messages: Message[] }>();
-  const actionData = actionFetcher.data;
   const revalidator = useRevalidator();
 
   const contentRef = useRef<HTMLInputElement>(null);
@@ -80,7 +77,8 @@ function MessagesWidget({ messages }: { messages: Message[] }) {
   const isLoading = actionFetcher.state != "idle";
 
   useEffect(() => {
-    if (actionData?.message) {
+    if (actionFetcher.data?.message) {
+      revalidator.revalidate;
       if (contentRef.current) {
         contentRef.current.value = "";
       }
@@ -88,18 +86,7 @@ function MessagesWidget({ messages }: { messages: Message[] }) {
         delayRef.current.value = "";
       }
     }
-  }, [actionData]);
-
-  useEffect(() => {
-    setCurrentMessages(messages);
-  }, [messages]);
-
-  useEffect(() => {
-    if (refreshFetcher.data?.messages) {
-      // @ts-ignore
-      setCurrentMessages(refreshFetcher.data.messages);
-    }
-  }, [refreshFetcher.data]);
+  }, [actionFetcher.data]);
 
   return (
     <Stack>
@@ -114,7 +101,7 @@ function MessagesWidget({ messages }: { messages: Message[] }) {
       >
         <IconRefresh size="48" />
       </ActionIcon>
-      {currentMessages.length == 0 ? (
+      {messages.length == 0 ? (
         <Text fs="italic">No messages yet.</Text>
       ) : (
         <Table>
@@ -128,7 +115,7 @@ function MessagesWidget({ messages }: { messages: Message[] }) {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {currentMessages.map((m) => (
+            {messages.map((m) => (
               <Table.Tr key={m.id}>
                 <Table.Td>{m.id}</Table.Td>
                 <Table.Td>{m.content}</Table.Td>
@@ -154,10 +141,12 @@ function MessagesWidget({ messages }: { messages: Message[] }) {
             name="delay"
             label="Processing delay (ms)"
             defaultValue="2000"
-            data={["0", "1000", "2000", "5000", "10000", "20000"]}
+            data={["0", "1000", "2000", "5000", "10000"]}
             disabled={isLoading}
           />
-          {actionData?.error && <Text c="red">{actionData?.error}</Text>}
+          {actionFetcher.data?.error && (
+            <Text c="red">{actionFetcher.data?.error}</Text>
+          )}
           <Button type="submit" loading={isLoading}>
             Send
           </Button>

@@ -124,35 +124,35 @@ services:
     environment:
       DB_PASSWORD: postgres
       KAFKA_SERVERS: broker1:9092,broker2:9092,broker3:9092
-      CONSUMERS_COUNT: 3
+      CONSUMERS_COUNT: 6
 
-  frontend:
-    container_name: messages-frontend
-    depends_on:
-      - api
-    build:
-      context: ./frontend
-    ports:
-      - 3000:3000
-    environment:
-      - API_BASE_URL=http://api:8080/api/v1
+  # frontend:
+  #   container_name: messages-frontend
+  #   depends_on:
+  #     - api
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - API_BASE_URL=http://api:8080/api/v1
   #
   # # # Optional: Monitoring tools
   #
-  # kafdrop:
-  #   image: obsidiandynamics/kafdrop:3.31.0
-  #   container_name: messages-kafdrop
-  #   ports:
-  #     - 9000:9000
-  #   environment:
-  #     KAFKA_BROKERCONNECT: broker1:29092,broker2:29092,broker3:29092
-  #   depends_on:
-  #     broker1:
-  #       condition: service_healthy
-  #     broker2:
-  #       condition: service_healthy
-  #     broker3:
-  #       condition: service_healthy
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.31.0
+    container_name: messages-kafdrop
+    ports:
+      - 9000:9000
+    environment:
+      KAFKA_BROKERCONNECT: broker1:9092,broker2:9092,broker3:9092
+    depends_on:
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
   #
   # pgadmin:
   #   image: dpage/pgadmin4:8.9

@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { Message } from "./message";
+import { Message, Statistics } from "./domain";
 
 if (!process.env.API_BASE_URL) {
   throw new Error("API_BASE_URL environment variable is not set");
@@ -23,7 +23,18 @@ class ApiClient {
       const messages = res.data["messages"].map(Message.fromJSON);
       return { messages };
     } catch (e) {
-      return { error: JSON.stringify(e) };
+      return { error: this.mapAxiosError(e) };
+    }
+  }
+
+  async getStatistics(): Promise<{ statistics?: Statistics; error?: string }> {
+    try {
+      const res = await this.client.get("/messages/statistics");
+      const statistics = Statistics.fromJSON(res.data["statistics"]);
+      return { statistics };
+    } catch (e) {
+      console.log(JSON.stringify(e));
+      return { error: this.mapAxiosError(e) };
     }
   }
 

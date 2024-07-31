@@ -3,7 +3,6 @@ import "./styles.css";
 
 import {
   AppShell,
-  Box,
   ColorSchemeScript,
   Group,
   MantineProvider,
@@ -45,9 +44,8 @@ export default function App() {
         <AppShell.Header pos="relative">
           <Group p="md" justify="space-between">
             <Group>
-              <Box visibleFrom="sm">
-                <Link to="/"></Link>
-              </Box>
+              <Link to="/">Messages</Link>
+              <Link to="/statistics">Statistics</Link>
             </Group>
             <Group>
               <ColorSchemeSwitcher />

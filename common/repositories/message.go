@@ -39,7 +39,9 @@ func (r *pgMessageRepository) FindAll() ([]*domain.Message, error) {
 			processed, 
 			processing_delay, 
 			created_at 
-		FROM messages`
+		FROM messages
+		ORDER BY id ASC
+		`
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err

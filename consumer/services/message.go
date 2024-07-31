@@ -9,7 +9,7 @@ import (
 )
 
 type EventHandler interface {
-	Handle(topic string, eventBytes []byte)
+	Handle(topic string, eventBytes []byte) error
 	Topics() []string
 }
 
@@ -33,15 +33,17 @@ func (h *messageEventHandler) registerHandler(topic string, handler EventHandler
 	h.topics = append(h.topics, topic)
 }
 
-func (h *messageEventHandler) Handle(topic string, eventBytes []byte) {
+func (h *messageEventHandler) Handle(topic string, eventBytes []byte) error {
 	err, found := h.handlers.Dispatch(topic, eventBytes)
 	if !found {
 		log.Printf("No handler registered for topic: %s", topic)
-		return
+		return nil
 	}
 	if err != nil {
 		log.Printf("Error handling event: %v", err)
+		return err
 	}
+	return nil
 }
 
 func (h *messageEventHandler) Topics() []string {
@@ -58,11 +60,10 @@ func (h *messageEventHandler) handleMessageCreated(eventBytes []byte) error {
 
 	delay := time.Duration(event.ProcessingDelayMs) * time.Millisecond
 	time.Sleep(delay)
-	time.AfterFunc(delay, func() {
-		if err := h.messageRepository.MarkProcessed(event.Id); err != nil {
-			log.Printf("Failed to mark message as processed: %v", err)
-		}
-	})
+	if err := h.messageRepository.MarkProcessed(event.Id); err != nil {
+		log.Printf("Failed to mark message as processed: %v", err)
+		return err
+	}
 
 	return nil
 }

@@ -1,10 +1,14 @@
 package services
 
 import (
+	"common/config"
 	"common/events"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"reflect"
+	"strings"
 
 	"github.com/IBM/sarama"
 )
@@ -41,6 +45,15 @@ func (p *eventProducer) Close() {
 	p.SyncProducer.Close()
 }
 
-func NewEventProducer(producer sarama.SyncProducer) EventProducer {
+func NewEventProducer(config *config.KafkaConfig) EventProducer {
+	brokers := strings.Split(config.Brokers, ",")
+	prodConf := sarama.NewConfig()
+	prodConf.Producer.Return.Successes = true
+	prodConf.Producer.Partitioner = sarama.NewRoundRobinPartitioner
+	producer, err := sarama.NewSyncProducer(brokers, prodConf)
+	if err != nil {
+		log.Fatalf("Error creating producer: %v\n", err)
+		os.Exit(1)
+	}
 	return &eventProducer{producer}
 }

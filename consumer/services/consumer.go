@@ -16,8 +16,11 @@ func (c consumerHandler) Cleanup(sarama.ConsumerGroupSession) error {
 // ConsumeClaim implements sarama.ConsumerGroupHandler.
 func (c consumerHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
-		c.evHandler.Handle(msg.Topic, msg.Value)
-		session.MarkMessage(msg, "")
+		err := c.evHandler.Handle(msg.Topic, msg.Value)
+		if err == nil {
+			session.MarkMessage(msg, "")
+			session.Commit()
+		}
 	}
 	return nil
 }
